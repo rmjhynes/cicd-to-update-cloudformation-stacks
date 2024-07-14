@@ -1,0 +1,34 @@
+Name: Main_Branch_Workflow
+SchemaVersion: "1.0"
+
+# Optional - Set automatic triggers.
+Triggers:
+  - Type: Push
+    Branches:
+      - main
+
+# Required - Define action configurations.
+Actions:
+  DeployAWSCloudFormationstack_7c:
+    Identifier: aws/cfn-deploy@v1
+    Configuration:
+      # Providing parameter values for the CloudFormation stack creation
+      parameter-overrides: SSHLocation=54.10.10.2/32,WebServerInstanceType=t2.micro
+      capabilities: CAPABILITY_IAM,CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
+      # CloudFormation template to deploy:
+      template: VPC_AutoScaling_With_Public_IPs.json
+      region: us-west-2
+      # Stack name:
+      name: PreProdEnvStack
+    Timeout: 10
+    Environment:
+      Connections:
+        # IAM role in my AWS account:
+        - Role: main_branch_IAM_role
+        # My AWS Account ID:
+          Name: "<account-id-here>"
+      # CodeCatalyst environment name:
+      Name: PreProdEnv
+    Inputs:
+      Sources:
+        - WorkflowSource
